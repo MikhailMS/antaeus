@@ -13,12 +13,40 @@ import io.pleo.antaeus.models.Invoice
 import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.Money
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 
 class AntaeusDal(private val db: Database) {
+    fun updateInvoice(id: Int, status: Boolean) {
+        val status = when(status) {
+            true  -> InvoiceStatus.PAID
+            false -> InvoiceStatus.PENDING
+        }
+        InvoiceTable
+                .update( { InvoiceTable.id.eq(id) } ) {
+                    it[this.status] = status.toString()
+                }
+    }
+
+    fun fetchPendingInvoices(): List<Invoice> {
+        return transaction(db) {
+            InvoiceTable
+                    .select { InvoiceTable.status.eq(InvoiceStatus.PENDING.toString()) }
+                    .map { it.toInvoice() }
+        }
+    }
+
+    fun fetchPaidInvoices(): List<Invoice> {
+        return transaction(db) {
+            InvoiceTable
+                    .select { InvoiceTable.status.eq(InvoiceStatus.PAID.toString()) }
+                    .map { it.toInvoice() }
+        }
+    }
+
     fun fetchInvoice(id: Int): Invoice? {
         // transaction(db) runs the internal query as a new database transaction.
         return transaction(db) {
@@ -43,9 +71,9 @@ class AntaeusDal(private val db: Database) {
             // Insert the invoice and returns its new id.
             InvoiceTable
                 .insert {
-                    it[this.value] = amount.value
-                    it[this.currency] = amount.currency.toString()
-                    it[this.status] = status.toString()
+                    it[this.value]      = amount.value
+                    it[this.currency]   = amount.currency.toString()
+                    it[this.status]     = status.toString()
                     it[this.customerId] = customer.id
                 } get InvoiceTable.id
         }
