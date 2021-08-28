@@ -6,6 +6,7 @@ import io.pleo.antaeus.core.exceptions.CustomerNotFoundException
 import io.pleo.antaeus.data.AntaeusDal
 import io.pleo.antaeus.models.Currency
 import io.pleo.antaeus.models.Customer
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -26,9 +27,9 @@ class CustomerServiceTest {
 
     @Test
     fun `will find customer with id 1`() {
-        val expected_customer = Customer(1, Currency.GBP)
-        val found_customer = customerService.fetch(1)
+        val expectedCustomer = Customer(1, Currency.GBP)
+        val foundCustomer    = customerService.fetch(1)
 
-        assert(expected_customer == found_customer)
+        assertEquals(expectedCustomer, foundCustomer)
     }
 }
