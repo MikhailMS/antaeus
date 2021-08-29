@@ -24,7 +24,7 @@ class BillingServiceTest {
 
     private val invoiceService = InvoiceService(dal = dal)
 
-    private val billingService = BillingService(paymentProvider = paymentProvider, invoiceService = invoiceService)
+    private val billingService = BillingService(paymentProvider = paymentProvider, invoiceService = invoiceService, retries = 1, timeout = 100)
 
     @Test
     fun `will perform invoice payment`() {

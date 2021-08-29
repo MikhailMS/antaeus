@@ -1,7 +1,11 @@
 package io.pleo.antaeus.core.services
 
+import mu.KotlinLogging
 import org.quartz.*
 import org.quartz.impl.StdSchedulerFactory
+
+
+private val logger = KotlinLogging.logger {}
 
 /*
   BillingCronService - responsible for linking BillingService and Cron scheduler,
@@ -16,6 +20,7 @@ class BillingCronService(
             val scheduler: Scheduler = StdSchedulerFactory.getDefaultScheduler()
             val job = JobBuilder
                     .newJob(BillingServiceJob::class.java)
+                    .withIdentity("billingCronService","billing")
                     .build()
             job.jobDataMap["billingService"] = billingService
             val trigger = TriggerBuilder
@@ -26,7 +31,7 @@ class BillingCronService(
             scheduler.start()
             scheduler.scheduleJob(job, trigger)
         } catch (exception: SchedulerException) {
-            exception.printStackTrace();
+            logger.error(exception) {}
         }
     }
 }
