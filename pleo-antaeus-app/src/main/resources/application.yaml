@@ -1,0 +1,12 @@
+dbConf:
+  tempPrefix: "antaeus-db"
+  tempSuffix: ".sqlite"
+  url:        "jdbc:sqlite:antaeus-db.sqlite"
+  driver:     "org.sqlite.JDBC"
+  user:       "root"
+  password:   ""
+
+billingServiceConf:
+  cronExpression: "0 0 0 1 * ?"
+  retries:        5
+  timeout:        1000

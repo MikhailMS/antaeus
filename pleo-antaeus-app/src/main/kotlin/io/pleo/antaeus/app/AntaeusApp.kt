@@ -7,6 +7,7 @@
 
 package io.pleo.antaeus.app
 
+import com.sksamuel.hoplite.ConfigLoader
 import getPaymentProvider
 import io.pleo.antaeus.core.services.BillingCronService
 import io.pleo.antaeus.core.services.BillingService
@@ -27,16 +28,20 @@ import java.io.File
 import java.sql.Connection
 
 fun main() {
+    // Read in configuration file
+    val configurationFile = ConfigLoader().loadConfigOrThrow<Configuration>("/application.yaml")
+
     // The tables to create in the database.
     val tables = arrayOf(InvoiceTable, CustomerTable)
 
-    val dbFile: File = File.createTempFile("antaeus-db", ".sqlite")
+    File.createTempFile(configurationFile.dbConf.tempPrefix, configurationFile.dbConf.tempSuffix)
+
     // Connect to the database and create the needed tables. Drop any existing data.
     val db = Database
-        .connect(url = "jdbc:sqlite:${dbFile.absolutePath}",
-            driver   = "org.sqlite.JDBC",
-            user     = "root",
-            password = "")
+        .connect(url = configurationFile.dbConf.url,
+            driver   = configurationFile.dbConf.driver,
+            user     = configurationFile.dbConf.user,
+            password = configurationFile.dbConf.password.value)
         .also {
             TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
             transaction(it) {
@@ -60,11 +65,10 @@ fun main() {
     // Create core services
     val invoiceService  = InvoiceService(dal = dal)
     val customerService = CustomerService(dal = dal)
-    val billingService  = BillingService(paymentProvider = paymentProvider, invoiceService = invoiceService)
+    val billingService  = BillingService(paymentProvider = paymentProvider, invoiceService = invoiceService, retries = configurationFile.billingServiceConf.retries, timeout = configurationFile.billingServiceConf.timeout)
 
     // Start Billing Service in a cron manner
-    //BillingCronService(billingService, "0 0 0 1 * ?").start()
-    BillingCronService(billingService, "5 * * * * ?").start()
+    BillingCronService(billingService, configurationFile.billingServiceConf.cronExpression).start()
 
     // Start REST web service
     AntaeusRest(
