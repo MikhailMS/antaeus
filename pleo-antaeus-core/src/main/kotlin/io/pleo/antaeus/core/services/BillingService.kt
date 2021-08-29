@@ -8,17 +8,14 @@ class BillingService(
     private val invoiceService: InvoiceService
 ) {
 
-    fun run() {
-        val invoices = getPendingInvoices()
-        processInvoice(invoices)
+    fun processInvoices() {
+        getPendingInvoices().forEach {
+            println(it.id)
+            invoiceService.updateInvoice(it.id, paymentProvider.charge(it))
+        }
     }
 
     private fun getPendingInvoices() : List<Invoice> {
         return invoiceService.fetchAllPending()
-    }
-    private fun processInvoice(invoices: List<Invoice>) {
-        invoices.forEach {
-            invoiceService.updateInvoice(it.id, paymentProvider.charge(it))
-        }
     }
 }

@@ -104,29 +104,9 @@ Error: build daemon disappeared unexpectedly
 ```
 At some point it got resolved, not sure what helped to fix that. Glad it is out of the way now, so I can start working on the challenge :)
 2. 28th August 2021 (total 4 hours)
-Had a look through available modules to id where I need to make changes to complete the challenge
 ```
-pleo-antaeus-app
- --> AntaeusApp.kt - **need to initialise actual billing service**, which would be executed at the frequency defined in the challenge
- --> utils.kt      - getPaymentProvider looks like a dummy function that simulates response from 3rd party payment provider (I assume payment provider would actually handle the payment and such would return False if customer has insufficient funds)
-
-pleo-antaeus-core
- --> exceptions - **don't touch this submodule**
- --> external
-     --> PaymentProvider.kt - an interface that represents actions that are available via 3rd party system, that should be handling payments
- --> services
-     --> BillingService.kt  - **this is where challenge is**; need to initialise a service such a way that it would be running at specific frequency, ie first day of each month
-     --> CustomerService.kt - provide an access to DB methods to fetch user(s)
-     --> InvoiceService.kt  - **need to be updated to pick up new methods from AntaeusDal** provide an access to DB methods to fetch invoice(s)
-
-pleo-antaeus-data
- --> AntaeusDal  - defines calls to DB. **need to add call to update Invoice record (update its status)
- --> mappings.kt - defines mappings between database rows and Kotlin objects
- --> tables.kt   - defines database tables and their schemas
-
-pleo-antaeus-models - **so far I believe there is nothing to be changed or added here**
-
-pleo-antaeus-rest - **so far I believe there is nothing to be changed or added here**, endpoints are
+Small cheatsheet (easier to have it this way rather than look through AntaeusRest.kt file)
+REST endpoints are
  --> /
      --> rest/
          --> health
@@ -134,4 +114,18 @@ pleo-antaeus-rest - **so far I believe there is nothing to be changed or added h
              --> invoices/{id}
              --> customers/{id}
 ```
-3.
+Managed to do:
+ - Updated AntaeusDal.kt, so it has calls to InvoiceTable to update Invoice records (and to fetch paid/pending records)
+ - Updated InvoiceService.kt, so it can utilise new DB calls from AntaeusDal.kt (update/fetch functions)
+ - Completed BillingService, so it links paymentProvider and InvoiceService
+ - Completed BillingCronService.kt, so we can execute BillingService at any specified frequency
+ - Initialised BillingService & BillingCronService in AntaeusApp.kt
+
+3. 29th August 2021 (total x hours)
+```
+TO-DO list:
+  [] Configuration file for AntaeusApp
+  [] Configuration file for Quartz
+  [] Setup logger
+  [] Take into account potential exceptions from PaymentProvider
+```

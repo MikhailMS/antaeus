@@ -8,6 +8,7 @@
 package io.pleo.antaeus.app
 
 import getPaymentProvider
+import io.pleo.antaeus.core.services.BillingCronService
 import io.pleo.antaeus.core.services.BillingService
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
@@ -33,8 +34,8 @@ fun main() {
     // Connect to the database and create the needed tables. Drop any existing data.
     val db = Database
         .connect(url = "jdbc:sqlite:${dbFile.absolutePath}",
-            driver = "org.sqlite.JDBC",
-            user = "root",
+            driver   = "org.sqlite.JDBC",
+            user     = "root",
             password = "")
         .also {
             TransactionManager.manager.defaultIsolationLevel = Connection.TRANSACTION_SERIALIZABLE
@@ -57,13 +58,15 @@ fun main() {
     val paymentProvider = getPaymentProvider()
 
     // Create core services
-    val invoiceService = InvoiceService(dal = dal)
+    val invoiceService  = InvoiceService(dal = dal)
     val customerService = CustomerService(dal = dal)
+    val billingService  = BillingService(paymentProvider = paymentProvider, invoiceService = invoiceService)
 
-    // This is _your_ billing service to be included where you see fit
-    val billingService = BillingService(paymentProvider = paymentProvider)
+    // Start Billing Service in a cron manner
+    //BillingCronService(billingService, "0 0 0 1 * ?").start()
+    BillingCronService(billingService, "5 * * * * ?").start()
 
-    // Create REST web service
+    // Start REST web service
     AntaeusRest(
         invoiceService = invoiceService,
         customerService = customerService
