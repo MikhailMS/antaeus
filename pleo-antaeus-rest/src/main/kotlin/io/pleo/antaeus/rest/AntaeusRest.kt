@@ -29,7 +29,8 @@ class AntaeusRest(
         .create()
         .apply {
             // InvoiceNotFoundException: return 404 HTTP status code
-            exception(EntityNotFoundException::class.java) { _, ctx ->
+            exception(EntityNotFoundException::class.java) { e, ctx ->
+                logger.warn(e.toString())
                 ctx.status(404)
             }
             // Unexpected exception: return HTTP 500

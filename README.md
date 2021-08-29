@@ -121,11 +121,30 @@ Managed to do:
  - Completed BillingCronService.kt, so we can execute BillingService at any specified frequency
  - Initialised BillingService & BillingCronService in AntaeusApp.kt
 
-3. 29th August 2021 (total x hours)
+3. 29th August 2021 (total 3 hours)
 ```
 TO-DO list:
-  [] Configuration file for AntaeusApp
-  [] Configuration file for Quartz
+  [x] Configuration file for AntaeusApp
+  [x] Configuration file for Quartz
+  [x] Take into account potential exceptions from PaymentProvider
+There are configuration files in
+  --> pleo-antaeus-app/
+      --> src/
+          --> main/
+              --> resources/
+                  --> application.yaml
+                  The main setting here: cronExpression is the setting which controls how often BillingService is called
+                  "0 0 0 1 * ?" - means BillingService is called on the first day of each month
+                  "*/5 * * * * *" - means BillingService is called every 5 seconds (useful for dev/testing)
+                  The rest is self-explanatory (fingers crossed)
+                  --> logging.properties
+                  Self-explanatory
+                  --> quartz.properties
+                  Setings to control Quartz (I only used basic settings, for PROD usage there are many more things to use, ie database connectivity to store tasks)
+```
+4. 30th August 2021 (total x hours)
+```
+TO-DO list:
   [] Setup logger
-  [] Take into account potential exceptions from PaymentProvider
+  [] Better retry for when calling paymentProvider
 ```
