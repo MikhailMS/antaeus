@@ -134,17 +134,19 @@ There are configuration files in
               --> resources/
                   --> application.yaml
                   The main setting here: cronExpression is the setting which controls how often BillingService is called
-                  "0 0 0 1 * ?" - means BillingService is called on the first day of each month
-                  "*/5 * * * * *" - means BillingService is called every 5 seconds (useful for dev/testing)
+                  "0 0 0 1 * ?"   - means BillingService is called on the first day of each month
+                  "*/5 * * * * ?" - means BillingService is called every 5 seconds (useful for dev/testing)
                   The rest is self-explanatory (fingers crossed)
-                  --> logging.properties
-                  Self-explanatory
+                  --> simplelogger.properties
+                  Settings to control Logs (their level, format, output to stdout/file etc)
                   --> quartz.properties
-                  Setings to control Quartz (I only used basic settings, for PROD usage there are many more things to use, ie database connectivity to store tasks)
+                  Settings to control Quartz (I only used basic settings, for PROD usage there are many more things to use, ie database connectivity to store tasks)
 ```
-4. 30th August 2021 (total x hours)
+4. 30th August 2021 (total 3 hours)
 ```
-TO-DO list:
-  [] Setup logger
-  [] Better retry for when calling paymentProvider
+Final day, completed all missing (imo) bits
+  [x] Setup logger
+  [x] Better retry when paymentProvider throws NetworkException
+  [x] Add tests for BillingService
+  [x] Add tests for BillingCronService
 ```
