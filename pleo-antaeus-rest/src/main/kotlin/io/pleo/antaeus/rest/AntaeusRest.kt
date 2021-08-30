@@ -29,13 +29,13 @@ class AntaeusRest(
         .create()
         .apply {
             // InvoiceNotFoundException: return 404 HTTP status code
-            exception(EntityNotFoundException::class.java) { e, ctx ->
-                logger.warn(e.toString())
+            exception(EntityNotFoundException::class.java) { exception, ctx ->
+                logger.warn(exception) { "Record was not found in DB" }
                 ctx.status(404)
             }
             // Unexpected exception: return HTTP 500
-            exception(Exception::class.java) { e, _ ->
-                logger.error(e) { "Internal server error" }
+            exception(Exception::class.java) { exception, _ ->
+                logger.error(exception) { "Internal server error" }
             }
             // On 404: return message
             error(404) { ctx -> ctx.json("not found") }
