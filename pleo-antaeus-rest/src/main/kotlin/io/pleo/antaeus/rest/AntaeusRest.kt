@@ -13,10 +13,9 @@ import io.pleo.antaeus.core.services.InvoiceService
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
-private val thisFile: () -> Unit = {}
 
 class AntaeusRest(
-    private val invoiceService: InvoiceService,
+    private val invoiceService:  InvoiceService,
     private val customerService: CustomerService
 ) : Runnable {
 
@@ -30,22 +29,29 @@ class AntaeusRest(
         .apply {
             // InvoiceNotFoundException: return 404 HTTP status code
             exception(EntityNotFoundException::class.java) { exception, ctx ->
-                logger.warn(exception) { "Record was not found in DB" }
-                ctx.status(404)
+                logger.warn { exception.toString() }
+                ctx.json("Record was not found in DB")
             }
             // Unexpected exception: return HTTP 500
-            exception(Exception::class.java) { exception, _ ->
+            exception(Exception::class.java) { exception, ctx ->
                 logger.error(exception) { "Internal server error" }
+                ctx.json("Internal server error")
             }
+
             // On 404: return message
-            error(404) { ctx -> ctx.json("not found") }
+            error(404) {
+                it.json("Not Found")
+            }
+            error(500) {
+                it.json("Internal server error")
+            }
         }
 
     init {
         // Set up URL endpoints for the rest app
         app.routes {
             get("/") {
-                it.result("Welcome to Antaeus! see AntaeusRest class for routes")
+                it.json("Welcome to Antaeus! see AntaeusRest class for routes")
             }
             path("rest") {
                 // Route to check whether the app is running

@@ -65,14 +65,17 @@ fun main() {
     // Create core services
     val invoiceService  = InvoiceService(dal = dal)
     val customerService = CustomerService(dal = dal)
-    val billingService  = BillingService(paymentProvider = paymentProvider, invoiceService = invoiceService, retries = configurationFile.billingServiceConf.retries, timeout = configurationFile.billingServiceConf.timeout)
+    val billingService  = BillingService(paymentProvider = paymentProvider,
+            invoiceService = invoiceService,
+            retries        = configurationFile.billingServiceConf.retries,
+            timeout        = configurationFile.billingServiceConf.timeout)
 
     // Start Billing Service in a cron manner
     BillingCronService(billingService, configurationFile.billingServiceConf.cronExpression).start()
 
     // Start REST web service
     AntaeusRest(
-        invoiceService = invoiceService,
+        invoiceService  = invoiceService,
         customerService = customerService
     ).run()
 }
