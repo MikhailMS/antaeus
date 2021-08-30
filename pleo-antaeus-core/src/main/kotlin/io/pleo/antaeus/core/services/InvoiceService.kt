@@ -25,7 +25,7 @@ class InvoiceService(private val dal: AntaeusDal) {
         return dal.fetchPaidInvoices()
     }
 
-    fun updateInvoice(id: Int, status: Boolean) {
-        dal.updateInvoice(id, status)
+    fun updateInvoiceStatus(id: Int, status: Boolean) {
+        dal.updateInvoiceStatus(id, status)
     }
 }

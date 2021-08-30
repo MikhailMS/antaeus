@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class AntaeusDal(private val db: Database) {
-    fun updateInvoice(id: Int, status: Boolean) {
+    fun updateInvoiceStatus(id: Int, status: Boolean) {
         val status = when(status) {
             true  -> InvoiceStatus.PAID
             false -> InvoiceStatus.PENDING
