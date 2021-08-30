@@ -28,7 +28,7 @@ class BillingService(
 
     private fun payInvoice(invoice: Invoice) {
         var invoicePaid = false
-        for (i in 1..retries) {
+        for (i in 0..retries) {
             try {
                 invoicePaid = paymentProvider.charge(invoice)
                 break
@@ -38,21 +38,17 @@ class BillingService(
                 logger.error(exception) {}
             } catch (exception: NetworkException) {
                 logger.error(exception) {}
-                var counter = 1
-                while (counter < retries) {
+                if (retries > 0) {
                     Thread.sleep(timeout)
-                    invoicePaid = paymentProvider.charge(invoice)
-                    counter++
                 }
             } catch (exception: Exception) {
-                logger.error(exception) {}
+                logger.error(exception) { "Unexpected error detected" }
             }
         }
 
         logger.debug("Is invoice with ID ${invoice.id} paid for? [${invoicePaid}]")
-        println("Is invoice with ID ${invoice.id} paid for? [${invoicePaid}]")
         if (invoicePaid) {
-            invoiceService.updateInvoice(invoice.id, invoicePaid)
+            invoiceService.updateInvoiceStatus(invoice.id, invoicePaid)
         }
     }
 }
